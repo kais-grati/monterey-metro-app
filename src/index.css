@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Six base values plus the three line colours, which are data rather than
+   decoration: they are the official Metrorrey line identities and nothing
+   else in the interface is allowed a hue.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-tunnel: #0c1622;
+  --color-steel: #152130;
+  --color-graphite: #22303f;
+  --color-mist: #6e8098;
+  --color-chalk: #e9f0f8;
+
+  --color-line-1: #f5b921;
+  --color-line-2: #35b45c;
+  --color-line-3: #e8453c;
+
+  --font-sans: 'Overpass', ui-sans-serif, system-ui, sans-serif;
+
+  /* Schematic units. The map viewBox is 1240 x 950, so these are
+     proportional to the drawing rather than to screen pixels. */
+  --track-width: 11px;
+  --casing-width: 23px;
+  --route-width: 17px;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-tunnel);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--color-chalk);
+    background-color: var(--color-tunnel);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-chalk);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Station names sit directly on the drawing, so they carry a halo in the
+     ground colour. Without it, every label that crosses a track is unreadable. */
+  .station-label {
+    paint-order: stroke fill;
+    stroke: var(--color-tunnel);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+    fill: var(--color-chalk);
+  }
+}
+
+/* The single orchestrated motion: the route is drawn on as the answer to the
+   user's action. Nothing else in the interface animates on its own. */
+/* The route path carries pathLength="1", so a dash pattern of 1 1 puts the
+   whole path in the first half of the cycle and offset 1 hides it entirely. */
+@keyframes draw-route {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.route-draw {
+  animation: draw-route 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-draw {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
